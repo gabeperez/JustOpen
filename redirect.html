@@ -3,16 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <title>Redirecting...</title>
-    <!-- Force external browser meta tags -->
-    <meta name="apple-itunes-app" content="app-id=305927807, app-argument=<?php echo urlencode($url); ?>">
-    <meta property="al:ios:url" content="browser://">
-    <meta property="al:android:url" content="browser://">
 </head>
 <body>
-    <p>Opening in Safari...</p>
+    <p>Redirecting to external browser...</p>
     <script>
         function getMobileOperatingSystem() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -31,44 +25,40 @@
         const urlParams = new URLSearchParams(window.location.search);
         const targetUrl = urlParams.get('url');
         const androidIntent = urlParams.get('android');
+        const iosWebSearch = urlParams.get('ios');
+        const chromeDeepLink = urlParams.get('chrome');
 
         if (targetUrl) {
             try {
                 const os = getMobileOperatingSystem();
                 
-                if (os === 'iOS') {
-                    // Try all methods in sequence with shorter delays
-                    window.location.href = targetUrl; // Direct attempt first
-                    
-                    setTimeout(() => {
-                        window.location.href = `x-web-search://${targetUrl}`;
-                    }, 100);
-                    
-                    setTimeout(() => {
-                        window.location.href = `safari-${targetUrl}`;
-                    }, 200);
-                    
-                    // Final fallback with direct replace
-                    setTimeout(() => {
-                        window.location.replace(targetUrl);
-                    }, 300);
-                } else if (os === 'Android') {
+                // Ensure we always redirect to the target URL after a short delay
+                const redirectToTarget = () => {
+                    window.location.replace(targetUrl);
+                };
+
+                // Try platform-specific deep links first
+                if (os === 'Android' && androidIntent) {
                     // Try Android Intent
                     window.location.href = androidIntent;
-                    setTimeout(() => {
-                        window.location.replace(targetUrl);
-                    }, 1000);
+                    // Fallback after a short delay
+                    setTimeout(redirectToTarget, 1000);
+                } else if (os === 'iOS' && iosWebSearch) {
+                    // Try iOS-specific handling
+                    window.location.href = iosWebSearch;
+                    // Fallback after a short delay
+                    setTimeout(redirectToTarget, 1000);
                 } else {
-                    // Direct redirect for unknown platforms
-                    window.location.replace(targetUrl);
+                    // Direct redirect for unknown platforms or when deep links aren't available
+                    redirectToTarget();
                 }
             } catch (e) {
+                // If anything fails, redirect directly to the target URL
                 window.location.replace(targetUrl);
             }
         } else {
             document.body.innerHTML = 'No URL parameter provided';
         }
     </script>
-    <div style="position: fixed; bottom: 10px; left: 10px; font-size: 12px; color: #666;">v0.02</div>
 </body>
 </html> 
