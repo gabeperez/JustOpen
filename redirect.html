@@ -12,7 +12,7 @@
     <meta property="al:android:url" content="browser://">
 </head>
 <body>
-    <p>Redirecting to external browser...</p>
+    <p>Opening in Safari...</p>
     <script>
         function getMobileOperatingSystem() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -31,50 +31,44 @@
         const urlParams = new URLSearchParams(window.location.search);
         const targetUrl = urlParams.get('url');
         const androidIntent = urlParams.get('android');
-        const iosSafari = urlParams.get('ios');
 
         if (targetUrl) {
             try {
                 const os = getMobileOperatingSystem();
                 
-                function forceExternalBrowser() {
-                    if (os === 'iOS') {
-                        // Try multiple methods for iOS
-                        window.location.href = `googlechrome://${targetUrl}`;
-                        setTimeout(() => {
-                            window.location.href = `firefox://${targetUrl}`;
-                        }, 100);
-                        setTimeout(() => {
-                            window.location.href = targetUrl;
-                        }, 200);
-                    } else if (os === 'Android') {
-                        // Try Android Intent
-                        window.location.href = androidIntent;
-                        setTimeout(() => {
-                            window.location.href = targetUrl;
-                        }, 1000);
-                    } else {
-                        window.location.href = targetUrl;
-                    }
+                if (os === 'iOS') {
+                    // Try all methods in sequence with shorter delays
+                    window.location.href = targetUrl; // Direct attempt first
+                    
+                    setTimeout(() => {
+                        window.location.href = `x-web-search://${targetUrl}`;
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        window.location.href = `safari-${targetUrl}`;
+                    }, 200);
+                    
+                    // Final fallback with direct replace
+                    setTimeout(() => {
+                        window.location.replace(targetUrl);
+                    }, 300);
+                } else if (os === 'Android') {
+                    // Try Android Intent
+                    window.location.href = androidIntent;
+                    setTimeout(() => {
+                        window.location.replace(targetUrl);
+                    }, 1000);
+                } else {
+                    // Direct redirect for unknown platforms
+                    window.location.replace(targetUrl);
                 }
-
-                // Add a click event to force browser opening
-                document.body.addEventListener('click', forceExternalBrowser);
-                
-                // Auto-trigger after a short delay
-                setTimeout(forceExternalBrowser, 100);
-
-                // Fallback
-                setTimeout(() => {
-                    window.location.href = targetUrl;
-                }, 2000);
-
             } catch (e) {
-                window.location.href = targetUrl;
+                window.location.replace(targetUrl);
             }
         } else {
             document.body.innerHTML = 'No URL parameter provided';
         }
     </script>
+    <div style="position: fixed; bottom: 10px; left: 10px; font-size: 12px; color: #666;">v0.02</div>
 </body>
 </html> 

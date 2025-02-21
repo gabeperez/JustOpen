@@ -84,6 +84,7 @@
             <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
         </div>
     </div>
+    <div style="position: fixed; bottom: 10px; left: 10px; font-size: 12px; color: #666;">v0.02</div>
 
     <script>
         function generateLink() {
@@ -101,11 +102,9 @@
                 // Create platform-specific deep links
                 const encodedUrl = encodeURIComponent(originalUrl);
                 const androidIntent = `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=${url.protocol.slice(0, -1)};package=com.android.chrome;end`;
-                // Try forcing Safari through a custom scheme
-                const iosSafari = `browser://${url.host}${url.pathname}${url.search}`;
                 
-                // Create a universal redirect page URL with special parameters
-                const redirectUrl = `https://gabeperez.github.io/JustOpen/redirect?url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}&ios=${encodeURIComponent(iosSafari)}&force_external=true`;
+                // Create a universal redirect page URL
+                const redirectUrl = `https://gabeperez.github.io/JustOpen/redirect?url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}`;
                 
                 // Display the result
                 document.getElementById('result').style.display = 'block';
