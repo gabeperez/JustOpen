@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In-App Browser Link Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+
+        .copy-button {
+            background-color: #007bff;
+            margin-top: 10px;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>In-App Browser Link Generator</h1>
+        <div class="input-group">
+            <input type="url" id="originalUrl" placeholder="Enter your URL here (e.g., https://example.com)" required>
+            <button onclick="generateLink()">Generate Link</button>
+        </div>
+        <div class="result" id="result" style="display: none;">
+            <h3>Generated Link:</h3>
+            <p id="generatedLink"></p>
+            <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
+        </div>
+    </div>
+
+    <script>
+        function generateLink() {
+            const originalUrl = document.getElementById('originalUrl').value;
+            
+            if (!originalUrl) {
+                alert('Please enter a valid URL');
+                return;
+            }
+
+            try {
+                // Ensure the URL is properly formatted
+                const url = new URL(originalUrl);
+                
+                // Create platform-specific deep links
+                const encodedUrl = encodeURIComponent(originalUrl);
+                const androidIntent = `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=${url.protocol.slice(0, -1)};package=com.android.chrome;end`;
+                const iosWebSearch = `x-web-search://${encodedUrl}`;
+                const chromeDeepLink = `googlechrome://${url.host}${url.pathname}${url.search}`;
+                
+                // Create a universal redirect page URL
+                const redirectUrl = `https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/redirect?url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}&ios=${encodeURIComponent(iosWebSearch)}&chrome=${encodeURIComponent(chromeDeepLink)}`;
+                
+                // Display the result
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('generatedLink').textContent = redirectUrl;
+            } catch (e) {
+                alert('Please enter a valid URL including http:// or https://');
+            }
+        }
+
+        function copyToClipboard() {
+            const generatedLink = document.getElementById('generatedLink').textContent;
+            navigator.clipboard.writeText(generatedLink)
+                .then(() => alert('Link copied to clipboard!'))
+                .catch(err => alert('Failed to copy link. Please copy it manually.'));
+        }
+    </script>
+</body>
+</html> 

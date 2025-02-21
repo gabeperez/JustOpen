@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+</head>
+<body>
+    <p>Redirecting to external browser...</p>
+    <script>
+        function getMobileOperatingSystem() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            
+            if (/android/i.test(userAgent)) {
+                return 'Android';
+            }
+            
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                return 'iOS';
+            }
+            
+            return 'unknown';
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetUrl = urlParams.get('url');
+        const androidIntent = urlParams.get('android');
+        const iosWebSearch = urlParams.get('ios');
+        const chromeDeepLink = urlParams.get('chrome');
+
+        if (targetUrl) {
+            try {
+                const os = getMobileOperatingSystem();
+                
+                // Try platform-specific deep links first
+                if (os === 'Android' && androidIntent) {
+                    window.location.href = androidIntent;
+                } else if (os === 'iOS' && iosWebSearch) {
+                    // Try iOS-specific handling
+                    window.location.href = iosWebSearch;
+                    
+                    // Fallback after a short delay if deep link fails
+                    setTimeout(() => {
+                        window.location.href = targetUrl;
+                    }, 500);
+                } else {
+                    // Try Chrome deep link as a fallback
+                    window.location.href = chromeDeepLink;
+                    
+                    // Final fallback to regular URL
+                    setTimeout(() => {
+                        window.location.href = targetUrl;
+                    }, 500);
+                }
+            } catch (e) {
+                document.body.innerHTML = 'Invalid URL provided';
+            }
+        } else {
+            document.body.innerHTML = 'No URL parameter provided';
+        }
+    </script>
+</body>
+</html> 
