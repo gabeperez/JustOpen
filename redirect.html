@@ -43,13 +43,21 @@
                     window.location.href = androidIntent;
                     // Fallback after a short delay
                     setTimeout(redirectToTarget, 1000);
-                } else if (os === 'iOS' && iosWebSearch) {
-                    // Try iOS-specific handling
-                    window.location.href = iosWebSearch;
-                    // Fallback after a short delay
+                } else if (os === 'iOS') {
+                    // For iOS, try to open Safari directly with the URL
+                    window.location.replace(targetUrl);
+                    
+                    // If that doesn't work, try the x-web-search protocol
+                    setTimeout(() => {
+                        if (iosWebSearch) {
+                            window.location.href = iosWebSearch;
+                        }
+                    }, 100);
+                    
+                    // Final fallback
                     setTimeout(redirectToTarget, 1000);
                 } else {
-                    // Direct redirect for unknown platforms or when deep links aren't available
+                    // Direct redirect for unknown platforms
                     redirectToTarget();
                 }
             } catch (e) {
