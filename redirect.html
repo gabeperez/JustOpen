@@ -32,28 +32,29 @@
             try {
                 const os = getMobileOperatingSystem();
                 
+                // Ensure we always redirect to the target URL after a short delay
+                const redirectToTarget = () => {
+                    window.location.replace(targetUrl);
+                };
+
                 // Try platform-specific deep links first
                 if (os === 'Android' && androidIntent) {
+                    // Try Android Intent
                     window.location.href = androidIntent;
+                    // Fallback after a short delay
+                    setTimeout(redirectToTarget, 1000);
                 } else if (os === 'iOS' && iosWebSearch) {
                     // Try iOS-specific handling
                     window.location.href = iosWebSearch;
-                    
-                    // Fallback after a short delay if deep link fails
-                    setTimeout(() => {
-                        window.location.href = targetUrl;
-                    }, 500);
+                    // Fallback after a short delay
+                    setTimeout(redirectToTarget, 1000);
                 } else {
-                    // Try Chrome deep link as a fallback
-                    window.location.href = chromeDeepLink;
-                    
-                    // Final fallback to regular URL
-                    setTimeout(() => {
-                        window.location.href = targetUrl;
-                    }, 500);
+                    // Direct redirect for unknown platforms or when deep links aren't available
+                    redirectToTarget();
                 }
             } catch (e) {
-                document.body.innerHTML = 'Invalid URL provided';
+                // If anything fails, redirect directly to the target URL
+                window.location.replace(targetUrl);
             }
         } else {
             document.body.innerHTML = 'No URL parameter provided';
