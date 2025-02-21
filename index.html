@@ -98,14 +98,8 @@
                 // Ensure the URL is properly formatted
                 const url = new URL(originalUrl);
                 
-                // Create platform-specific deep links
-                const encodedUrl = encodeURIComponent(originalUrl);
-                const androidIntent = `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=${url.protocol.slice(0, -1)};package=com.android.chrome;end`;
-                const iosWebSearch = `x-web-search://${encodedUrl}`;
-                const chromeDeepLink = `googlechrome://${url.host}${url.pathname}${url.search}`;
-                
-                // Create a universal redirect page URL
-                const redirectUrl = `https://gabeperez.github.io/JustOpen/redirect?url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}&ios=${encodeURIComponent(iosWebSearch)}&chrome=${encodeURIComponent(chromeDeepLink)}`;
+                // Create a simpler redirect URL
+                const redirectUrl = `https://gabeperez.github.io/JustOpen/redirect?url=${encodeURIComponent(originalUrl)}`;
                 
                 // Display the result
                 document.getElementById('result').style.display = 'block';

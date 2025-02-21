@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
+    <meta http-equiv="refresh" content="0;url=safari-https://www.producthunt.com">
 </head>
 <body>
     <p>Redirecting to external browser...</p>
@@ -24,36 +25,29 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const targetUrl = urlParams.get('url');
-        const androidIntent = urlParams.get('android');
-        const iosWebSearch = urlParams.get('ios');
-        const chromeDeepLink = urlParams.get('chrome');
 
         if (targetUrl) {
             try {
                 const os = getMobileOperatingSystem();
                 
-                // Ensure we always redirect to the target URL after a short delay
-                const redirectToTarget = () => {
-                    window.location.replace(targetUrl);
-                };
-
-                // Try platform-specific deep links first
-                if (os === 'Android' && androidIntent) {
-                    // Try Android Intent
-                    window.location.href = androidIntent;
+                if (os === 'iOS') {
+                    // iOS-specific approach
+                    const safariUrl = `safari-${targetUrl}`;
+                    window.location.replace(safariUrl);
+                    
                     // Fallback after a short delay
-                    setTimeout(redirectToTarget, 1000);
-                } else if (os === 'iOS' && iosWebSearch) {
-                    // Try iOS-specific handling
-                    window.location.href = iosWebSearch;
-                    // Fallback after a short delay
-                    setTimeout(redirectToTarget, 1000);
+                    setTimeout(() => {
+                        window.location.replace(targetUrl);
+                    }, 100);
+                } else if (os === 'Android') {
+                    // Android approach
+                    window.location.replace(`intent://${new URL(targetUrl).host}${new URL(targetUrl).pathname}${new URL(targetUrl).search}#Intent;scheme=${new URL(targetUrl).protocol.slice(0, -1)};package=com.android.chrome;end`);
                 } else {
-                    // Direct redirect for unknown platforms or when deep links aren't available
-                    redirectToTarget();
+                    // Desktop or unknown device
+                    window.location.replace(targetUrl);
                 }
             } catch (e) {
-                // If anything fails, redirect directly to the target URL
+                // If anything fails, redirect directly
                 window.location.replace(targetUrl);
             }
         } else {
