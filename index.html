@@ -101,12 +101,11 @@
                 // Create platform-specific deep links
                 const encodedUrl = encodeURIComponent(originalUrl);
                 const androidIntent = `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=${url.protocol.slice(0, -1)};package=com.android.chrome;end`;
-                // Use Safari's URL scheme instead
-                const iosSafari = `safari-https://www.producthunt.com`;
-                const chromeDeepLink = `googlechrome://${url.host}${url.pathname}${url.search}`;
+                // Try forcing Safari through a custom scheme
+                const iosSafari = `browser://${url.host}${url.pathname}${url.search}`;
                 
-                // Create a universal redirect page URL
-                const redirectUrl = `https://gabeperez.github.io/JustOpen/redirect?url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}&ios=${encodeURIComponent(iosSafari)}&chrome=${encodeURIComponent(chromeDeepLink)}`;
+                // Create a universal redirect page URL with special parameters
+                const redirectUrl = `https://gabeperez.github.io/JustOpen/redirect?url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}&ios=${encodeURIComponent(iosSafari)}&force_external=true`;
                 
                 // Display the result
                 document.getElementById('result').style.display = 'block';
