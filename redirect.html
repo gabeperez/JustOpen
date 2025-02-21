@@ -25,8 +25,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const targetUrl = urlParams.get('url');
         const androidIntent = urlParams.get('android');
-        const iosWebSearch = urlParams.get('ios');
-        const chromeDeepLink = urlParams.get('chrome');
+        const iosSafari = urlParams.get('ios');
 
         if (targetUrl) {
             try {
@@ -44,18 +43,28 @@
                     // Fallback after a short delay
                     setTimeout(redirectToTarget, 1000);
                 } else if (os === 'iOS') {
-                    // For iOS, try to open Safari directly with the URL
+                    // For iOS, try a more direct approach
+                    // First attempt: direct location change
                     window.location.replace(targetUrl);
                     
-                    // If that doesn't work, try the x-web-search protocol
+                    // Second attempt: try opening in Safari
                     setTimeout(() => {
-                        if (iosWebSearch) {
-                            window.location.href = iosWebSearch;
+                        if (document.hidden) {
+                            // If page is hidden, we successfully opened Safari
+                            return;
+                        }
+                        // If we're still here, try the Safari scheme
+                        if (iosSafari) {
+                            window.location.href = iosSafari;
                         }
                     }, 100);
                     
                     // Final fallback
-                    setTimeout(redirectToTarget, 1000);
+                    setTimeout(() => {
+                        if (!document.hidden) {
+                            redirectToTarget();
+                        }
+                    }, 2000);
                 } else {
                     // Direct redirect for unknown platforms
                     redirectToTarget();
