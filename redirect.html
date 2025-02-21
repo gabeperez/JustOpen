@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="External Link">
+    <meta property="og:description" content="Open this link in external browser">
     <title>Redirecting...</title>
-</head>
-<body>
-    <p>Redirecting to external browser...</p>
     <script>
         function getMobileOperatingSystem() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -22,43 +22,55 @@
             return 'unknown';
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const targetUrl = urlParams.get('url');
-        const androidIntent = urlParams.get('android');
-        const iosWebSearch = urlParams.get('ios');
-        const chromeDeepLink = urlParams.get('chrome');
+        // Add a small delay to ensure the browser has time to process the redirect
+        function delayedRedirect(url, delay) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    window.location.replace(url);
+                    resolve();
+                }, delay);
+            });
+        }
 
-        if (targetUrl) {
+        async function handleRedirect() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetUrl = urlParams.get('url');
+            const androidIntent = urlParams.get('android');
+            const iosWebSearch = urlParams.get('ios');
+            const linkId = urlParams.get('id');
+
+            if (!targetUrl) {
+                document.body.innerHTML = 'No URL parameter provided';
+                return;
+            }
+
             try {
                 const os = getMobileOperatingSystem();
                 
-                // Ensure we always redirect to the target URL after a short delay
-                const redirectToTarget = () => {
-                    window.location.replace(targetUrl);
-                };
-
-                // Try platform-specific deep links first
+                // Try to force external browser based on OS
                 if (os === 'Android' && androidIntent) {
-                    // Try Android Intent
-                    window.location.href = androidIntent;
-                    // Fallback after a short delay
-                    setTimeout(redirectToTarget, 1000);
+                    await delayedRedirect(androidIntent, 100);
+                    // Fallback after a delay if intent fails
+                    await delayedRedirect(decodeURIComponent(targetUrl), 1500);
                 } else if (os === 'iOS' && iosWebSearch) {
-                    // Try iOS-specific handling
-                    window.location.href = iosWebSearch;
-                    // Fallback after a short delay
-                    setTimeout(redirectToTarget, 1000);
+                    await delayedRedirect(iosWebSearch, 100);
+                    // Fallback after a delay
+                    await delayedRedirect(decodeURIComponent(targetUrl), 1500);
                 } else {
-                    // Direct redirect for unknown platforms or when deep links aren't available
-                    redirectToTarget();
+                    // Direct redirect for unknown platforms
+                    window.location.replace(decodeURIComponent(targetUrl));
                 }
             } catch (e) {
-                // If anything fails, redirect directly to the target URL
-                window.location.replace(targetUrl);
+                // Fallback to direct URL if anything fails
+                window.location.replace(decodeURIComponent(targetUrl));
             }
-        } else {
-            document.body.innerHTML = 'No URL parameter provided';
         }
+
+        // Start redirect process when page loads
+        window.onload = handleRedirect;
     </script>
+</head>
+<body>
+    <p>Redirecting to external browser...</p>
 </body>
 </html> 
