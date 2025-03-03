@@ -6,6 +6,12 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="External Link">
     <meta property="og:description" content="Open this link in external browser">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="refresh" content="0;URL=''" id="meta-refresh">
     <title>Redirecting...</title>
     <script>
         function getMobileOperatingSystem() {
@@ -22,48 +28,53 @@
             return 'unknown';
         }
 
-        // Add a small delay to ensure the browser has time to process the redirect
-        function delayedRedirect(url, delay) {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    window.location.replace(url);
-                    resolve();
-                }, delay);
-            });
+        function isInAppBrowser() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return /Instagram/.test(userAgent) || /FBAN/.test(userAgent) || /FBAV/.test(userAgent);
         }
 
-        async function handleRedirect() {
+        function handleRedirect() {
             const urlParams = new URLSearchParams(window.location.search);
             const targetUrl = urlParams.get('url');
             const androidIntent = urlParams.get('android');
-            const iosWebSearch = urlParams.get('ios');
             const linkId = urlParams.get('id');
+            const decodedUrl = decodeURIComponent(targetUrl);
 
             if (!targetUrl) {
                 document.body.innerHTML = 'No URL parameter provided';
                 return;
             }
 
+            // Set the meta refresh URL
+            document.getElementById('meta-refresh').content = `0;URL='${decodedUrl}'`;
+
             try {
                 const os = getMobileOperatingSystem();
                 
-                // Try to force external browser based on OS
-                if (os === 'Android' && androidIntent) {
-                    await delayedRedirect(androidIntent, 100);
-                    // Fallback after a delay if intent fails
-                    await delayedRedirect(decodeURIComponent(targetUrl), 1500);
-                } else if (os === 'iOS' && iosWebSearch) {
-                    await delayedRedirect(iosWebSearch, 100);
-                    // Fallback after a delay
-                    await delayedRedirect(decodeURIComponent(targetUrl), 1500);
+                if (isInAppBrowser()) {
+                    if (os === 'iOS') {
+                        // For iOS, try multiple approaches
+                        document.location.href = decodedUrl;
+                        window.location.href = decodedUrl;
+                        window.location.replace(decodedUrl);
+                        window.top.location.href = decodedUrl;
+                    } else if (os === 'Android' && androidIntent) {
+                        window.location.href = androidIntent;
+                        setTimeout(() => {
+                            window.location.replace(decodedUrl);
+                        }, 1000);
+                    }
                 } else {
-                    // Direct redirect for unknown platforms
-                    window.location.replace(decodeURIComponent(targetUrl));
+                    window.location.replace(decodedUrl);
                 }
             } catch (e) {
-                // Fallback to direct URL if anything fails
-                window.location.replace(decodeURIComponent(targetUrl));
+                window.location.replace(decodedUrl);
             }
+        }
+
+        // Try to break out of frames
+        if (window.top !== window.self) {
+            window.top.location.href = window.self.location.href;
         }
 
         // Start redirect process when page loads
