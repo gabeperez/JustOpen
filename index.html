@@ -84,23 +84,6 @@
             color: #666;
             opacity: 0.7;
         }
-
-        .options {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-        }
-
-        .checkbox-group {
-            margin: 10px 0;
-        }
-
-        .info-text {
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
-        }
     </style>
 </head>
 <body>
@@ -108,13 +91,6 @@
         <h1>In-App Browser Link Generator</h1>
         <div class="input-group">
             <input type="url" id="originalUrl" placeholder="Enter your URL here (e.g., https://example.com)" required>
-            <div class="options">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="forceWebOption" checked>
-                    <label for="forceWebOption">Force web version (prevents opening in native apps)</label>
-                    <p class="info-text">Recommended for YouTube, Twitter, Instagram, etc.</p>
-                </div>
-            </div>
             <button onclick="generateLink()">Generate Link</button>
         </div>
         <div class="result" id="result" style="display: none;">
@@ -123,12 +99,11 @@
             <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
         </div>
     </div>
-    <div class="version">v0.10</div>
+    <div class="version">v0.04</div>
 
     <script>
         function generateLink() {
             const originalUrl = document.getElementById('originalUrl').value;
-            const forceWeb = document.getElementById('forceWebOption').checked;
             
             if (!originalUrl) {
                 alert('Please enter a valid URL');
@@ -139,12 +114,16 @@
                 // Ensure the URL is properly formatted
                 const url = new URL(originalUrl);
                 
-                // Generate a unique link ID
+                // Generate a unique link ID (similar to getallmylinks approach)
                 const linkId = Math.random().toString(36).substring(2, 15);
                 
-                // Create the redirect URL using the Cloudflare Worker
-                const cloudflareWorkerUrl = "https://justopen.perez-jg22.workers.dev";
-                const redirectUrl = `${cloudflareWorkerUrl}?url=${encodeURIComponent(originalUrl)}&stage=1&forceweb=${forceWeb}`;
+                // Create platform-specific deep links
+                const encodedUrl = encodeURIComponent(originalUrl);
+                const androidIntent = `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=${url.protocol.slice(0, -1)};package=com.android.chrome;end;S.browser_fallback_url=${encodedUrl}`;
+                const iosWebSearch = `x-web-search://${encodedUrl}`;
+                
+                // Create a universal redirect page URL with link ID
+                const redirectUrl = `https://gabeperez.github.io/JustOpen/redirect?id=${linkId}&url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}&ios=${encodeURIComponent(iosWebSearch)}`;
                 
                 // Display the result
                 document.getElementById('result').style.display = 'block';
