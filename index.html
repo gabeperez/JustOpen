@@ -114,7 +114,7 @@
                 // Ensure the URL is properly formatted
                 const url = new URL(originalUrl);
                 
-                // Generate a unique link ID (similar to getallmylinks approach)
+                // Generate a unique link ID
                 const linkId = Math.random().toString(36).substring(2, 15);
                 
                 // Create platform-specific deep links
@@ -123,7 +123,8 @@
                 const iosWebSearch = `x-web-search://${encodedUrl}`;
                 
                 // Create a universal redirect page URL with link ID
-                const redirectUrl = `https://gabeperez.github.io/JustOpen/redirect?id=${linkId}&url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}&ios=${encodeURIComponent(iosWebSearch)}`;
+                // Point to Cloudflare Worker instead of GitHub Pages
+                const redirectUrl = `https://justopen.perez-jg22.workers.dev/?id=${linkId}&url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}&ios=${encodeURIComponent(iosWebSearch)}`;
                 
                 // Display the result
                 document.getElementById('result').style.display = 'block';
