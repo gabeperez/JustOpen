@@ -117,14 +117,9 @@
                 // Generate a unique link ID
                 const linkId = Math.random().toString(36).substring(2, 15);
                 
-                // Create platform-specific deep links
+                // Create a specialized Instagram redirect URL
                 const encodedUrl = encodeURIComponent(originalUrl);
-                const androidIntent = `intent://${url.host}${url.pathname}${url.search}#Intent;scheme=${url.protocol.slice(0, -1)};package=com.android.chrome;end;S.browser_fallback_url=${encodedUrl}`;
-                const iosWebSearch = `x-web-search://${encodedUrl}`;
-                
-                // Create a universal redirect page URL with link ID
-                // Point to Cloudflare Worker instead of GitHub Pages
-                const redirectUrl = `https://justopen.perez-jg22.workers.dev/?id=${linkId}&url=${encodedUrl}&android=${encodeURIComponent(androidIntent)}&ios=${encodeURIComponent(iosWebSearch)}`;
+                const redirectUrl = `https://gabeperez.github.io/JustOpen/instagram-redirect.html?url=${encodedUrl}`;
                 
                 // Display the result
                 document.getElementById('result').style.display = 'block';
