@@ -99,7 +99,7 @@
             <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
         </div>
     </div>
-    <div class="version">v0.04</div>
+    <div class="version">v0.05</div>
 
     <script>
         function generateLink() {
@@ -114,16 +114,16 @@
                 // Ensure the URL is properly formatted
                 const url = new URL(originalUrl);
                 
-                // Generate a unique link ID
-                const linkId = Math.random().toString(36).substring(2, 15);
-                
-                // Create a specialized Instagram redirect URL
+                // Create a link using our Cloudflare Worker
                 const encodedUrl = encodeURIComponent(originalUrl);
-                const redirectUrl = `https://gabeperez.github.io/JustOpen/instagram-redirect.html?url=${encodedUrl}`;
+                const redirectUrl = `https://justopen.perez-jg22.workers.dev/?url=${encodedUrl}`;
                 
                 // Display the result
                 document.getElementById('result').style.display = 'block';
                 document.getElementById('generatedLink').textContent = redirectUrl;
+                
+                // Update version number
+                document.querySelector('.version').textContent = 'v0.05';
             } catch (e) {
                 alert('Please enter a valid URL including http:// or https://');
             }
