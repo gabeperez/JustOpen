@@ -99,7 +99,7 @@
             <button class="copy-button" onclick="copyToClipboard()">Copy Link</button>
         </div>
     </div>
-    <div class="version">v0.09</div>
+    <div class="version">v0.08</div>
 
     <script>
         function generateLink() {
@@ -117,10 +117,8 @@
                 // Generate a unique link ID
                 const linkId = Math.random().toString(36).substring(2, 15);
                 
-                // Create the redirect URL using the Cloudflare Worker
-                // Replace YOUR_CLOUDFLARE_WORKER_URL with your actual Cloudflare Worker URL
-                const cloudflareWorkerUrl = "https://justopen.perez-jg22.workers.dev/";
-                const redirectUrl = `${cloudflareWorkerUrl}?url=${encodeURIComponent(originalUrl)}&stage=1`;
+                // Create the redirect URL using the API endpoint
+                const redirectUrl = `https://gabeperez.github.io/JustOpen/api/redirect?url=${encodeURIComponent(originalUrl)}`;
                 
                 // Display the result
                 document.getElementById('result').style.display = 'block';
